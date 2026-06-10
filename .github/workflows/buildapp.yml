@@ -158,22 +158,19 @@ jobs:
       - name: Strip Extensions for SideStore
         run: |
           cd ${{ github.workspace }}/main/packages
-          # Create a working directory and unzip the built IPA
           mkdir temp_unzip
           unzip -q *.ipa -d temp_unzip
           
-          # Completely remove the broken PlugIns and Extensions folders
-          rm -rf temp_unzip/Payload/YouTube.app/PlugIns/*
-          rm -rf temp_unzip/Payload/YouTube.app/Extensions/*
+          # This completely deletes the folders so Apple stops looking for them
+          rm -rf temp_unzip/Payload/YouTube.app/PlugIns
+          rm -rf temp_unzip/Payload/YouTube.app/Extensions
           
-          # Delete the old IPA file
+          # Remove the old package file
           rm *.ipa
           
-          # Re-zip the payload back into a clean IPA file
+          # Build a fresh package container
           cd temp_unzip
           zip -qr ../${{ steps.build_package.outputs.package }} Payload
-          
-          # Clean up the working directory
           cd ..
           rm -rf temp_unzip
 
@@ -201,4 +198,3 @@ jobs:
           name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
           files: main/packages/*.ipa
           draft: true
-
